@@ -1,0 +1,42 @@
+//
+//  ViewController.swift
+//  ToDoRx3
+//
+//  Created by Igor-Macbook Pro on 18/01/2019.
+//  Copyright © 2019 Igor-Macbook Pro. All rights reserved.
+//
+
+import UIKit
+import RxSwift
+import RxCocoa
+
+class ViewController: UIViewController {
+
+    let dBag = DisposeBag()
+    @IBOutlet weak var tableView: UITableView!
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        // Do any additional setup after loading the view, typically from a nib.
+        driveIt()
+        selectIt()
+    }
+
+    func driveIt() {
+        BehaviorRelay(value: ["Hey", "Hey2"])
+            .asObservable()
+            .asDriver(onErrorJustReturn: [])
+            .drive(tableView.rx.items(cellIdentifier: "cell")) { _, value, cell in
+                cell.textLabel?.text = value
+        }
+            .disposed(by: dBag)
+    }
+    
+    func selectIt() {
+        tableView.rx.itemSelected.subscribe(onNext: { [weak self] indexPath in
+            print("was selected")
+        }).disposed(by: dBag)
+    }
+    
+}
+
